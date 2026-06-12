@@ -533,8 +533,9 @@ Compliance with these rules is monitored. Thank you for your cooperation.""",
                 
         existing_doc = get_document(doc_id)
         if existing_doc and all_pages_exist:
-            logger.info(f"Sample {doc['original_name']} already fully precomputed and files exist. Skipping.")
-            continue
+            logger.info(f"Sample {doc['original_name']} already fully precomputed and files exist. Regenerating encrypted files to ensure they are up to date.")
+            # We do not use 'continue' here to ensure the encrypted files on disk are overwritten
+            # with the latest version from the repository, while preserving the existing database chunks and embeddings.
         
         # 1. Generate local sample files in sample_docs folder
         temp_file_path = SAMPLE_DOCS_DIR / doc["original_name"]
