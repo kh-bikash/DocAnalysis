@@ -300,14 +300,16 @@ def get_chat_history(session_id: str) -> List[Dict[str, Any]]:
 
 def check_and_cleanup_orphaned_documents():
     """Verify that all 'indexed' documents actually have their encrypted source files on disk.
-    If the storage has been wiped (e.g. on ephemeral deploys), mark them as failed.
+    If the storage has been wiped (e.g. on ephemeral deploys) or if they fail to decrypt
+    due to encryption key change/loss, mark them as failed.
     """
     import logging
     from backend.app.config import SECURE_STORAGE_DIR
     from pathlib import Path
+    from backend.app.services.security import decrypt_data
     
     logger = logging.getLogger(__name__)
-    logger.info("Checking for orphaned database records due to ephemeral storage...")
+    logger.info("Checking for orphaned database records due to ephemeral storage or decryption failures...")
     
     try:
         conn = get_db_connection()
@@ -331,8 +333,31 @@ def check_and_cleanup_orphaned_documents():
                     SET status = 'failed', error_message = 'File storage was reset on server restart (ephemeral storage). Please delete and re-upload.'
                     WHERE id = ?
                 """, (doc_id,))
+            else:
+                # Test decryption of the file
+                try:
+                    with open(secure_file_path, "rb") as f:
+                        enc_data = f.read()
+                    decrypt_data(enc_data)
+                except Exception as dec_err:
+                    logger.warning(f"Document {orig_name} ({doc_id}) failed to decrypt (encryption key changed or corrupted): {dec_err}. Marking as failed.")
+                    execute_query(cursor, """
+                        UPDATE documents 
+                        SET status = 'failed', error_message = 'Failed to decrypt file (encryption key was regenerated on server restart). Please delete and re-upload.'
+                        WHERE id = ?
+                    """, (doc_id,))
                 
         conn.commit()
         conn.close()
     except Exception as e:
         logger.error(f"Failed to check/update orphaned records: {e}")
+
+def delete_document_db(doc_id: str):
+    """Delete document from DB. SQLite cascade deletes pages and chunks automatically if foreign keys are enabled."""
+    conn = get_db_connection()
+    cursor = get_db_cursor(conn)
+    if not IS_POSTGRES:
+        cursor.execute("PRAGMA foreign_keys = ON")
+    execute_query(cursor, "DELETE FROM documents WHERE id = ?", (doc_id,))
+    conn.commit()
+    conn.close()

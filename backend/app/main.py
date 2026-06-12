@@ -15,7 +15,7 @@ from backend.app.database import (
     init_db, register_document, update_document_status,
     save_document_classification, insert_page, insert_chunks,
     get_all_documents, get_document, get_document_pages,
-    save_chat_message, get_chat_history
+    save_chat_message, get_chat_history, delete_document_db
 )
 from backend.app.services.security import (
     encrypt_data, decrypt_data, sanitize_filename,
@@ -274,3 +274,33 @@ def chat(
 def chat_history(session_id: str):
     """Retrieve chat history for a session."""
     return get_chat_history(session_id)
+
+@app.delete("/api/documents/{doc_id}")
+def delete_document(doc_id: str):
+    """Delete a document, its database records, and physical files."""
+    doc = get_document(doc_id)
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found")
+        
+    # 1. Delete DB records (cascades automatically to pages and chunks)
+    delete_document_db(doc_id)
+    
+    # 2. Delete secure original file from storage
+    secure_file_path = Path(SECURE_STORAGE_DIR) / doc["secure_name"]
+    if secure_file_path.exists():
+        try:
+            secure_file_path.unlink()
+        except Exception as e:
+            logger.warning(f"Failed to delete secure file {secure_file_path}: {e}")
+            
+    # 3. Delete page images from pages storage
+    try:
+        for page_img_file in PAGE_IMAGES_DIR.glob(f"{doc_id}_page_*.enc"):
+            try:
+                page_img_file.unlink()
+            except Exception as e:
+                logger.warning(f"Failed to delete page image {page_img_file}: {e}")
+    except Exception as e:
+        logger.warning(f"Failed to list page images for deletion: {e}")
+        
+    return {"status": "success", "message": f"Document {doc_id} deleted successfully."}

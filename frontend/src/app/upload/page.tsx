@@ -155,6 +155,25 @@ export default function UploadPage() {
     }
   };
 
+  const handleDelete = async (docId: string) => {
+    try {
+      const res = await fetch(`${API_URL}/api/documents/${docId}`, {
+        method: 'DELETE',
+      });
+      if (res.ok) {
+        setDocuments(prev => prev.filter(d => d.id !== docId));
+        if (selectedDoc?.id === docId) {
+          setSelectedDoc(null);
+        }
+      } else {
+        alert('Failed to delete document. Please try again.');
+      }
+    } catch (err) {
+      console.error('Delete error:', err);
+      alert('Network error while deleting document.');
+    }
+  };
+
   const triggerFileInput = () => {
     fileInputRef.current?.click();
   };
@@ -316,30 +335,76 @@ export default function UploadPage() {
                     {/* Actions */}
                     <div style={{ textAlign: 'right' }}>
                       {doc.status === 'indexed' && (
-                        <button
-                          style={{
-                            background: 'rgba(139, 92, 246, 0.1)',
-                            border: '1px solid rgba(139, 92, 246, 0.3)',
-                            borderRadius: '6px',
-                            color: 'var(--primary)',
-                            padding: '6px 12px',
-                            fontSize: '0.8rem',
-                            cursor: 'pointer',
-                            fontWeight: 600,
-                            transition: 'var(--transition-fast)'
-                          }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedDoc(doc);
-                          }}
-                        >
-                          Details
-                        </button>
+                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', alignItems: 'center' }}>
+                          <button
+                            style={{
+                              background: 'rgba(139, 92, 246, 0.1)',
+                              border: '1px solid rgba(139, 92, 246, 0.3)',
+                              borderRadius: '6px',
+                              color: 'var(--primary)',
+                              padding: '6px 12px',
+                              fontSize: '0.8rem',
+                              cursor: 'pointer',
+                              fontWeight: 600,
+                              transition: 'var(--transition-fast)'
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedDoc(doc);
+                            }}
+                          >
+                            Details
+                          </button>
+                          <button
+                            style={{
+                              background: 'rgba(239, 68, 68, 0.1)',
+                              border: '1px solid rgba(239, 68, 68, 0.3)',
+                              borderRadius: '6px',
+                              color: 'var(--accent-red)',
+                              padding: '6px 12px',
+                              fontSize: '0.8rem',
+                              cursor: 'pointer',
+                              fontWeight: 600,
+                              transition: 'var(--transition-fast)'
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (confirm(`Are you sure you want to delete "${doc.original_name}"?`)) {
+                                handleDelete(doc.id);
+                              }
+                            }}
+                          >
+                            Delete
+                          </button>
+                        </div>
                       )}
                       {doc.status === 'failed' && (
-                        <span style={{ color: 'var(--accent-red)', fontSize: '0.8rem', cursor: 'help' }} title={doc.error_message}>
-                          Error details
-                        </span>
+                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', alignItems: 'center' }}>
+                          <span style={{ color: 'var(--accent-red)', fontSize: '0.8rem', cursor: 'help', textDecoration: 'underline' }} title={doc.error_message}>
+                            Error details
+                          </span>
+                          <button
+                            style={{
+                              background: 'rgba(239, 68, 68, 0.1)',
+                              border: '1px solid rgba(239, 68, 68, 0.3)',
+                              borderRadius: '6px',
+                              color: 'var(--accent-red)',
+                              padding: '6px 12px',
+                              fontSize: '0.8rem',
+                              cursor: 'pointer',
+                              fontWeight: 600,
+                              transition: 'var(--transition-fast)'
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (confirm(`Are you sure you want to delete "${doc.original_name}"?`)) {
+                                handleDelete(doc.id);
+                              }
+                            }}
+                          >
+                            Delete
+                          </button>
+                        </div>
                       )}
                     </div>
                   </div>
