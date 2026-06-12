@@ -1,33 +1,6 @@
 <p align="center">
-  <svg width="400" height="90" viewBox="0 0 400 90" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <style>
-      .text {
-        font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
-        font-weight: 800;
-        font-size: 24px;
-        animation: glow 3s ease-in-out infinite alternate;
-      }
-      .subtext {
-        font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
-        font-style: italic;
-        font-weight: 500;
-        font-size: 13px;
-        fill: #64748b;
-      }
-      @keyframes glow {
-        from {
-          text-shadow: 0 0 4px rgba(124, 58, 237, 0.2), 0 0 10px rgba(124, 58, 237, 0.4);
-          fill: #7c3aed;
-        }
-        to {
-          text-shadow: 0 0 12px rgba(192, 132, 252, 0.6), 0 0 22px rgba(192, 132, 252, 0.8);
-          fill: #c084fc;
-        }
-      }
-    </style>
-    <text x="50%" y="40" dominant-baseline="middle" text-anchor="middle" class="text">🔮 DOCINTEL RAG AGENT</text>
-    <text x="50%" y="68" dominant-baseline="middle" text-anchor="middle" class="subtext">Secure Ingestion, Multimodal OCR & Agentic RAG</text>
-  </svg>
+  <img src="banner.svg" alt="DocIntel RAG Agent" width="400" />
+</p>
 </p>
 
 <p align="center">
@@ -204,23 +177,4 @@ Follow this guide to verify the primary features of the application:
   $$\text{Queued} \rightarrow \text{Parsing} \rightarrow \text{Classifying} \rightarrow \text{Indexed}$$
 * Once indexed, click the row in the document table to slide open the metadata drawer, showing the structured JSON classification: summary, topic, sensitivity level, and key entities.
 
----
 
-## 🌐 Live Production Deployment
-
-### Frontend: Vercel
-Deploy the Next.js frontend to **Vercel** with one click.
-* Configure the environment variable `NEXT_PUBLIC_API_URL` to point to your live backend endpoint.
-
-### Database: Neon PostgreSQL
-The backend database adapter dynamically switches to PostgreSQL when a `DATABASE_URL` (such as a **Neon database connection string**) is supplied. It automatically initializes tables and processes upserts using Postgres-compliant syntax:
-```env
-DATABASE_URL=postgresql://neondb_owner:your_password@ep-square-bar-addv7u5z.us-east-1.aws.neon.tech/neondb?sslmode=require
-```
-
-### Backend: Persistent Host (Render, Railway, AWS, GCP)
-**Vercel is NOT sufficient for hosting the Python backend** due to:
-1. **Background Tasks**: Ingestion pipelines run in background threads (`BackgroundTasks`) to process large uploads. Vercel's serverless functions will terminate these threads prematurely.
-2. **Binary Dependencies**: Scanning and OCR require `pytesseract`, which depends on the Tesseract OCR binary installed on the host OS. This cannot be installed easily on Vercel serverless.
-3. **Encrypted Storage**: Uploads and page images are encrypted and stored inside local storage folders on disk. Vercel's filesystem is read-only and stateless.
-4. **Recommendation**: Deploy the FastAPI app to **Render** or **Railway** with your Neon PostgreSQL URL configured in the environment variables.
