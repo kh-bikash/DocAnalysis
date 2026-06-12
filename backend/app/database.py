@@ -316,7 +316,8 @@ def check_and_cleanup_orphaned_documents():
         cursor = get_db_cursor(conn)
         
         # Select all indexed documents that are not samples
-        execute_query(cursor, "SELECT id, original_name, secure_name FROM documents WHERE status = 'indexed' AND id NOT LIKE 'sample-%'")
+        # Note: We use substr() instead of LIKE 'sample-%' to avoid % format character parsing issues in psycopg2 (PostgreSQL)
+        execute_query(cursor, "SELECT id, original_name, secure_name FROM documents WHERE status = 'indexed' AND substr(id, 1, 7) != 'sample-'")
         rows = cursor.fetchall()
         
         for r in rows:

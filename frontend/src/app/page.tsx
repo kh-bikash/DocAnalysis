@@ -50,16 +50,43 @@ export default function ChatbotPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
 
-  // Initialize session ID and load preloaded welcome message
+  // Initialize session ID and load preloaded welcome message from localStorage
   useEffect(() => {
-    setSessionId(`session-${Math.random().toString(36).substring(2, 11)}`);
-    setMessages([
-      {
-        role: 'assistant',
-        content: "Hello! I am your **Document Intelligence Agent**. I can help you search and analyze uploaded contracts, financial sheets, invoices, plain text, and hand-written memos. Ask me any question, and I'll answer with inline citations and matching page screenshots!"
+    let savedSessionId = localStorage.getItem('doc_intel_session_id');
+    if (!savedSessionId) {
+      savedSessionId = `session-${Math.random().toString(36).substring(2, 11)}`;
+      localStorage.setItem('doc_intel_session_id', savedSessionId);
+    }
+    setSessionId(savedSessionId);
+
+    const savedMessages = localStorage.getItem('doc_intel_messages');
+    if (savedMessages) {
+      try {
+        setMessages(JSON.parse(savedMessages));
+      } catch (e) {
+        setMessages([
+          {
+            role: 'assistant',
+            content: "Hello! I am your **Document Intelligence Agent**. I can help you search and analyze uploaded contracts, financial sheets, invoices, plain text, and hand-written memos. Ask me any question, and I'll answer with inline citations and matching page screenshots!"
+          }
+        ]);
       }
-    ]);
+    } else {
+      setMessages([
+        {
+          role: 'assistant',
+          content: "Hello! I am your **Document Intelligence Agent**. I can help you search and analyze uploaded contracts, financial sheets, invoices, plain text, and hand-written memos. Ask me any question, and I'll answer with inline citations and matching page screenshots!"
+        }
+      ]);
+    }
   }, []);
+
+  // Sync messages to localStorage when updated
+  useEffect(() => {
+    if (messages.length > 0) {
+      localStorage.setItem('doc_intel_messages', JSON.stringify(messages));
+    }
+  }, [messages]);
 
   // Scroll to bottom on new messages
   useEffect(() => {
@@ -312,6 +339,43 @@ export default function ChatbotPage() {
             Active Ingestion & Encrypted Storage
           </span>
         </div>
+        <button
+          onClick={() => {
+            if (confirm("Are you sure you want to clear the chat history?")) {
+              const newSessionId = `session-${Math.random().toString(36).substring(2, 11)}`;
+              setSessionId(newSessionId);
+              localStorage.setItem('doc_intel_session_id', newSessionId);
+              
+              const defaultMsg: Message[] = [
+                {
+                  role: 'assistant',
+                  content: "Hello! I am your **Document Intelligence Agent**. I can help you search and analyze uploaded contracts, financial sheets, invoices, plain text, and hand-written memos. Ask me any question, and I'll answer with inline citations and matching page screenshots!"
+                }
+              ];
+              setMessages(defaultMsg);
+              localStorage.setItem('doc_intel_messages', JSON.stringify(defaultMsg));
+            }
+          }}
+          style={{
+            background: 'rgba(239, 68, 68, 0.08)',
+            border: '1px solid rgba(239, 68, 68, 0.2)',
+            borderRadius: '8px',
+            color: 'var(--accent-red)',
+            padding: '6px 14px',
+            fontSize: '0.85rem',
+            cursor: 'pointer',
+            fontWeight: 600,
+            transition: 'all 0.15s ease'
+          }}
+          onMouseOver={(e) => {
+            e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)';
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.background = 'rgba(239, 68, 68, 0.08)';
+          }}
+        >
+          Clear Chat
+        </button>
       </header>
 
       {/* Messages Scroll Area */}
