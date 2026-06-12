@@ -17,12 +17,16 @@ if str(backend_dir) not in sys.path:
     sys.path.insert(0, str(backend_dir))
 
 if __name__ == "__main__":
-    # Run uvicorn using the absolute module name "backend.app.main:app"
-    # and specify app_dir as backend_dir so it watches for changes there
+    # Read port from env (inserted by Railway/Render)
+    port = int(os.environ.get("PORT", 8000))
+    # Turn off reload in production to optimize performance
+    is_prod = "RAILWAY_ENVIRONMENT" in os.environ or "PORT" in os.environ and os.environ.get("PORT") != "8000"
+    reload_mode = not is_prod
+    
     uvicorn.run(
         "backend.app.main:app",
         host="0.0.0.0",
-        port=8000,
-        reload=True,
+        port=port,
+        reload=reload_mode,
         app_dir=str(backend_dir)
     )

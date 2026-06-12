@@ -4,7 +4,7 @@ import uuid
 import logging
 from pathlib import Path
 from typing import List, Optional
-from fastapi import FastAPI, UploadFile, File, Form, BackgroundTasks, HTTPException, Query, status
+from fastapi import FastAPI, UploadFile, File, Form, BackgroundTasks, HTTPException, Query, status, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 
@@ -218,6 +218,7 @@ def get_page_image(
 
 @app.post("/api/chat")
 def chat(
+    request: Request,
     message: str = Form(...),
     session_id: str = Form(...)
 ):
@@ -236,6 +237,7 @@ def chat(
     answer, citations = synthesize_answer(message, history, retrieved_chunks)
     
     # 3. Generate secure signed image URLs for citations
+    base_url = str(request.base_url).rstrip("/")
     secure_citations = []
     for cit in citations:
         token = generate_page_token(cit["document_id"], cit["page_number"])
@@ -243,7 +245,7 @@ def chat(
             "document_id": cit["document_id"],
             "document_name": cit["document_name"],
             "page_number": cit["page_number"],
-            "image_url": f"http://localhost:8000/api/documents/{cit['document_id']}/pages/{cit['page_number']}?token={token}"
+            "image_url": f"{base_url}/api/documents/{cit['document_id']}/pages/{cit['page_number']}?token={token}"
         })
         
     # Save user message

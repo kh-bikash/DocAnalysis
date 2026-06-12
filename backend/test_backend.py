@@ -56,7 +56,9 @@ class TestBackendAPI(unittest.TestCase):
         self.assertIn("image_url", cit)
         
         # Attempt to access the page image with the token
-        img_url = cit["image_url"].replace("http://localhost:8000", "") # convert to relative for TestClient
+        from urllib.parse import urlparse
+        parsed = urlparse(cit["image_url"])
+        img_url = f"{parsed.path}?{parsed.query}"
         img_response = client.get(img_url)
         self.assertEqual(img_response.status_code, 200)
         self.assertEqual(img_response.headers["content-type"], "image/jpeg")

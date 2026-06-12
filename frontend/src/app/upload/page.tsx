@@ -23,6 +23,8 @@ interface Document {
   created_at: string;
 }
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+
 export default function UploadPage() {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
@@ -33,7 +35,7 @@ export default function UploadPage() {
   // Fetch documents on load
   const fetchDocuments = async () => {
     try {
-      const res = await fetch('http://localhost:8000/api/documents');
+      const res = await fetch(`${API_URL}/api/documents`);
       if (res.ok) {
         const data = await res.json();
         setDocuments(data);
@@ -125,7 +127,7 @@ export default function UploadPage() {
       setDocuments(prev => [optimisticDoc, ...prev]);
 
       try {
-        const res = await fetch('http://localhost:8000/api/upload', {
+        const res = await fetch(`${API_URL}/api/upload`, {
           method: 'POST',
           body: formData,
         });

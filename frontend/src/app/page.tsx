@@ -15,6 +15,8 @@ interface Message {
   citations?: Citation[];
 }
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+
 export default function ChatbotPage() {
   const [sessionId, setSessionId] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
@@ -143,7 +145,7 @@ export default function ChatbotPage() {
       formData.append('message', messageText);
       formData.append('session_id', sessionId);
 
-      const res = await fetch('http://localhost:8000/api/chat', {
+      const res = await fetch(`${API_URL}/api/chat`, {
         method: 'POST',
         body: formData
       });
@@ -166,7 +168,7 @@ export default function ChatbotPage() {
       console.error('Chat error:', err);
       setMessages(prev => [...prev, {
         role: 'assistant',
-        content: "Failed to connect to the backend API. Please make sure the backend is active at `localhost:8000`."
+        content: `Failed to connect to the backend API. Please make sure the backend is active at ${API_URL}.`
       }]);
     } finally {
       setIsLoading(false);
