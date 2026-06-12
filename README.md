@@ -215,7 +215,7 @@ Deploy the Next.js frontend to **Vercel** with one click.
 ### Database: Neon PostgreSQL
 The backend database adapter dynamically switches to PostgreSQL when a `DATABASE_URL` (such as a **Neon database connection string**) is supplied. It automatically initializes tables and processes upserts using Postgres-compliant syntax:
 ```env
-DATABASE_URL=postgresql://neondb_owner:npg_Ovzkh1p2rqwP@ep-square-bar-addv7u5z-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+DATABASE_URL=postgresql://neondb_owner:your_password@ep-square-bar-addv7u5z.us-east-1.aws.neon.tech/neondb?sslmode=require
 ```
 
 ### Backend: Persistent Host (Render, Railway, AWS, GCP)
