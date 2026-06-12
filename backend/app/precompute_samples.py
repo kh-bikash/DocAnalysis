@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
 
 from backend.app.config import DATA_DIR, PAGE_IMAGES_DIR, SECURE_STORAGE_DIR, DB_PATH
-from backend.app.database import init_db, upsert_document_precomputed, insert_page, insert_chunks
+from backend.app.database import init_db, upsert_document_precomputed, insert_page, insert_chunks, get_document
 from backend.app.services.security import encrypt_data, sanitize_filename
 from backend.app.services.rag import chunk_text, get_gemini_embedding
 
@@ -522,6 +522,20 @@ Compliance with these rules is monitored. Thank you for your cooperation.""",
         doc_id = doc["id"]
         logger.info(f"Populating sample: {doc['original_name']}...")
         
+        # Check if files already exist
+        all_pages_exist = True
+        for page in doc["pages"]:
+            page_id = f"{doc_id}_page_{page['page_number']}"
+            page_img_path = PAGE_IMAGES_DIR / f"{page_id}.enc"
+            if not page_img_path.exists():
+                all_pages_exist = False
+                break
+                
+        existing_doc = get_document(doc_id)
+        if existing_doc and all_pages_exist:
+            logger.info(f"Sample {doc['original_name']} already fully precomputed and files exist. Skipping.")
+            continue
+        
         # 1. Generate local sample files in sample_docs folder
         temp_file_path = SAMPLE_DOCS_DIR / doc["original_name"]
         
@@ -597,10 +611,11 @@ Compliance with these rules is monitored. Thank you for your cooperation.""",
             )
             
             # 5. Chunk and insert
-            chunks = chunk_text(page["text"], doc_id, page_number)
-            for c in chunks:
-                c["embedding"] = get_gemini_embedding(c["content"])
-            insert_chunks(chunks)
+            if not existing_doc:
+                chunks = chunk_text(page["text"], doc_id, page_number)
+                for c in chunks:
+                    c["embedding"] = get_gemini_embedding(c["content"])
+                insert_chunks(chunks)
     logger.info("Sample database populated successfully!")
 
 if __name__ == "__main__":

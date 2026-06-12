@@ -48,6 +48,9 @@ app.add_middleware(
 def on_startup():
     logger.info("Initializing database...")
     init_db()
+    from backend.app.precompute_samples import populate_database_with_samples
+    logger.info("Precomputing samples (if missing)...")
+    populate_database_with_samples()
 
 def process_document_background(doc_id: str, file_path: Path, mime_type: str):
     """Asynchronous background document parser, classifier, and indexer."""
