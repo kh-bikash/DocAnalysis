@@ -1,4 +1,44 @@
-# 🧠 Document Intelligence + Agentic RAG
+<p align="center">
+  <svg width="400" height="90" viewBox="0 0 400 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <style>
+      .text {
+        font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+        font-weight: 800;
+        font-size: 24px;
+        animation: glow 3s ease-in-out infinite alternate;
+      }
+      .subtext {
+        font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+        font-style: italic;
+        font-weight: 500;
+        font-size: 13px;
+        fill: #64748b;
+      }
+      @keyframes glow {
+        from {
+          text-shadow: 0 0 4px rgba(124, 58, 237, 0.2), 0 0 10px rgba(124, 58, 237, 0.4);
+          fill: #7c3aed;
+        }
+        to {
+          text-shadow: 0 0 12px rgba(192, 132, 252, 0.6), 0 0 22px rgba(192, 132, 252, 0.8);
+          fill: #c084fc;
+        }
+      }
+    </style>
+    <text x="50%" y="40" dominant-baseline="middle" text-anchor="middle" class="text">🔮 DOCINTEL RAG AGENT</text>
+    <text x="50%" y="68" dominant-baseline="middle" text-anchor="middle" class="subtext">Secure Ingestion, Multimodal OCR & Agentic RAG</text>
+  </svg>
+</p>
+
+<p align="center">
+  <a href="https://fastapi.tiangolo.com"><img src="https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi" alt="FastAPI" /></a>
+  <a href="https://nextjs.org"><img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" alt="Next.js" /></a>
+  <a href="https://ai.google.dev"><img src="https://img.shields.io/badge/Gemini%20API-8E75C2?style=for-the-badge&logo=google&logoColor=white" alt="Gemini API" /></a>
+  <a href="https://neon.tech"><img src="https://img.shields.io/badge/Neon%20Postgres-316192?style=for-the-badge&logo=postgresql&logoColor=white" alt="Neon Postgres" /></a>
+  <img src="https://img.shields.io/badge/Security-AES--256-success?style=for-the-badge&logo=lock" alt="AES-256 Encrypted" />
+</p>
+
+---
 
 A state-of-the-art, secure enterprise web application designed to ingest messy, real-world documents (digital/scanned PDFs, handwritten pages, image-heavy reports, plain text), structurally extract tables, automatically classify files across multiple dimensions, and power a multi-turn RAG chatbot with grounded page citations and secure image visualization.
 
@@ -20,7 +60,7 @@ graph TD
         BE --> |Embeddings/Retriever| RAG[Agentic RAG Engine]
     end
     
-    subgraph Data & Storage (AES-256 Encrypted)
+    subgraph "Data & Storage (AES-256 Encrypted)"
         Security --> |Encrypt/Decrypt| Storage[(Local Secure Storage)]
         Parser --> |Save Page Images| PageStorage[(Encrypted Page Images)]
         RAG --> |Vector & Text Index| DB[(SQLite / Neon PostgreSQL)]
