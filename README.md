@@ -1,7 +1,6 @@
 <p align="center">
   <img src="banner.svg" alt="DocIntel RAG Agent" width="400" />
 </p>
-</p>
 
 <p align="center">
   <a href="https://fastapi.tiangolo.com"><img src="https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi" alt="FastAPI" /></a>
@@ -9,6 +8,10 @@
   <a href="https://ai.google.dev"><img src="https://img.shields.io/badge/Gemini%20API-8E75C2?style=for-the-badge&logo=google&logoColor=white" alt="Gemini API" /></a>
   <a href="https://neon.tech"><img src="https://img.shields.io/badge/Neon%20Postgres-316192?style=for-the-badge&logo=postgresql&logoColor=white" alt="Neon Postgres" /></a>
   <img src="https://img.shields.io/badge/Security-AES--256-success?style=for-the-badge&logo=lock" alt="AES-256 Encrypted" />
+</p>
+
+<p align="center">
+  <strong>🟢 Live App: <a href="https://doc-analysis-three.vercel.app">https://doc-analysis-three.vercel.app</a></strong> | <strong>API:</strong> <a href="https://docanalysis-production.up.railway.app">https://docanalysis-production.up.railway.app</a>
 </p>
 
 ---
