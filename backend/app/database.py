@@ -259,6 +259,7 @@ def get_all_chunks() -> List[Dict[str, Any]]:
         SELECT chunks.*, documents.original_name
         FROM chunks
         JOIN documents ON chunks.document_id = documents.id
+        WHERE documents.status = 'indexed'
     ''')
     rows = cursor.fetchall()
     conn.close()
@@ -296,3 +297,42 @@ def get_chat_history(session_id: str) -> List[Dict[str, Any]]:
         del m["citations_json"]
         msgs.append(m)
     return msgs
+
+def check_and_cleanup_orphaned_documents():
+    """Verify that all 'indexed' documents actually have their encrypted source files on disk.
+    If the storage has been wiped (e.g. on ephemeral deploys), mark them as failed.
+    """
+    import logging
+    from backend.app.config import SECURE_STORAGE_DIR
+    from pathlib import Path
+    
+    logger = logging.getLogger(__name__)
+    logger.info("Checking for orphaned database records due to ephemeral storage...")
+    
+    try:
+        conn = get_db_connection()
+        cursor = get_db_cursor(conn)
+        
+        # Select all indexed documents that are not samples
+        execute_query(cursor, "SELECT id, original_name, secure_name FROM documents WHERE status = 'indexed' AND id NOT LIKE 'sample-%'")
+        rows = cursor.fetchall()
+        
+        for r in rows:
+            d = dict(r)
+            doc_id = d["id"]
+            orig_name = d["original_name"]
+            sec_name = d["secure_name"]
+            
+            secure_file_path = Path(SECURE_STORAGE_DIR) / sec_name
+            if not secure_file_path.exists():
+                logger.warning(f"Document {orig_name} ({doc_id}) is missing its secure file on disk. Marking as failed.")
+                execute_query(cursor, """
+                    UPDATE documents 
+                    SET status = 'failed', error_message = 'File storage was reset on server restart (ephemeral storage). Please delete and re-upload.'
+                    WHERE id = ?
+                """, (doc_id,))
+                
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        logger.error(f"Failed to check/update orphaned records: {e}")

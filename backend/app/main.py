@@ -48,6 +48,11 @@ app.add_middleware(
 def on_startup():
     logger.info("Initializing database...")
     init_db()
+    
+    logger.info("Checking for orphaned database records...")
+    from backend.app.database import check_and_cleanup_orphaned_documents
+    check_and_cleanup_orphaned_documents()
+    
     from backend.app.precompute_samples import populate_database_with_samples
     logger.info("Precomputing samples (if missing)...")
     populate_database_with_samples()

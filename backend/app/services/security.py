@@ -21,10 +21,13 @@ def decrypt_data(data: bytes) -> bytes:
 def sanitize_filename(filename: str) -> str:
     """Sanitize the original filename to prevent path traversal."""
     import re
-    # Remove any directory separators or path manipulation sequences
-    clean = re.sub(r'[\\/*?:|"<>..]', '', filename)
-    # Ensure it's not empty, otherwise default
-    if not clean or clean == '..':
+    import os
+    # Get only the basename to prevent path traversal
+    basename = os.path.basename(filename)
+    # Remove characters that are not alphanumeric, dot, underscore, or hyphen
+    clean = re.sub(r'[^a-zA-Z0-9._-]', '_', basename)
+    # Prevent empty filename or files consisting only of dots
+    if not clean.replace('.', '').strip():
         clean = "uploaded_file"
     return clean
 
