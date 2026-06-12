@@ -17,6 +17,18 @@ interface Message {
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
+const getImageUrl = (url: string) => {
+  if (!url) return '';
+  if (url.startsWith('/')) return `${API_URL}${url}`;
+  try {
+    const parsed = new URL(url);
+    const apiParsed = new URL(API_URL);
+    return `${apiParsed.origin}${parsed.pathname}${parsed.search}`;
+  } catch (e) {
+    return url;
+  }
+};
+
 export default function ChatbotPage() {
   const [sessionId, setSessionId] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
@@ -225,7 +237,7 @@ export default function ChatbotPage() {
             key={i}
             onClick={() => {
               if (citation) {
-                setLightboxImage({ url: citation.image_url, title: `${citation.document_name} - Page ${citation.page_number}` });
+                setLightboxImage({ url: getImageUrl(citation.image_url), title: `${citation.document_name} - Page ${citation.page_number}` });
                 handleReset();
               } else {
                 alert(`Source image for ${docName} Page ${pageNum} is not available in vector context.`);
@@ -365,7 +377,7 @@ export default function ChatbotPage() {
                       key={cIdx}
                       className="glass-panel"
                       onClick={() => {
-                        setLightboxImage({ url: cit.image_url, title: `${cit.document_name} - Page ${cit.page_number}` });
+                        setLightboxImage({ url: getImageUrl(cit.image_url), title: `${cit.document_name} - Page ${cit.page_number}` });
                         handleReset();
                       }}
                       style={{
@@ -400,7 +412,7 @@ export default function ChatbotPage() {
                       }}>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
-                          src={cit.image_url}
+                          src={getImageUrl(cit.image_url)}
                           alt="Thumbnail"
                           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                         />
