@@ -1,0 +1,19 @@
+MEMORANDUM
+
+TO: All Engineering Interns
+FROM: IT Security Office
+DATE: June 12, 2026
+SUBJECT: Secure API Key Management & Vector Configurations
+
+This memorandum outlines our mandatory policies regarding credentials and document safety.
+
+1. API KEY STORAGE
+Under no circumstances should any API keys (such as GEMINI_API_KEY, OPENAI_API_KEY, or database passwords) be committed to public git repositories. Always load keys using environment variables (e.g. via .env files loaded with python-dotenv).
+
+2. DOCUMENT STORAGE REGULATIONS
+All uploaded evaluation files containing financial or corporate project names must be encrypted. Our backend must perform filename hashing, renaming files to secure UUIDs, and encrypting bytes at rest using AES-256 symmetric ciphers.
+
+3. RETRIEVAL SIGNING
+When chatbot users request document source visualizations, URLs must contain short-lived signed tokens. Anonymous access to page images is strictly prohibited.
+
+Compliance with these rules is monitored. Thank you for your cooperation.

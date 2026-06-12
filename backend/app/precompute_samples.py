@@ -21,7 +21,10 @@ from backend.app.services.rag import chunk_text, get_gemini_embedding
 # Ensure database and folders are initialized
 init_db()
 
-SAMPLE_DOCS_DIR = Path(__file__).resolve().parent.parent.parent / "sample_docs"
+# Try backend/sample_docs first (packaged inside build root for production), fallback to parent sample_docs (for local dev)
+SAMPLE_DOCS_DIR = Path(__file__).resolve().parent.parent / "sample_docs"
+if not (SAMPLE_DOCS_DIR / "handwritten_note.png").exists():
+    SAMPLE_DOCS_DIR = Path(__file__).resolve().parent.parent.parent / "sample_docs"
 SAMPLE_DOCS_DIR.mkdir(exist_ok=True)
 
 def create_invoice_pdf(path: Path):
